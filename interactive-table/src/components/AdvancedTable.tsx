@@ -131,6 +131,12 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           <Download className="h-4 w-4 mr-2" />
           Export
         </button>
+
+        {/* View Button with Settings Icon */}
+        <button className="ml-2 px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 flex items-center">
+          <Settings2 className="h-4 w-4 mr-2" />
+          View
+        </button>
       </div>
 
       <table className="min-w-full border border-gray-300 rounded-lg shadow-md table-container">
