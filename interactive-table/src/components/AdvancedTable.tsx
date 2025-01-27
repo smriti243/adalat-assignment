@@ -82,8 +82,8 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
   const buttonStyles = (canClick: boolean) => {
     const baseStyle = "px-4 py-2 text-white rounded-md";
-    const enabledStyle = "bg-white text-[#09090B] border-[#09090B] border hover:bg-[#f0f0f0]";
-    const disabledStyle = "bg-[#09090b] text-[#09090B] border-[#848485] border cursor-not-allowed opacity-80"; // Reduced opacity for disabled state
+    const enabledStyle = "bg-[#09090b] text-white border-white border hover:bg-[#f0f0f0]";
+    const disabledStyle = "bg-[#09090b] text-white border-white border cursor-not-allowed "; // Reduced opacity for disabled state
 
     return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
   };
