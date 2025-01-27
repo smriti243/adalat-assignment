@@ -45,10 +45,11 @@ button{
   }
 
   .resizable-column-handle {
-    background-color: #ccc;
-    border-left: 2px solid #999;
+    /* background-color: #ccc; */
+    border-left: 0.1px solid #999;
     cursor: ew-resize;
     z-index: 100;
+    width: 0.5px !important;
   }
   
   
