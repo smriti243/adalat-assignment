@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   ColumnDef,
+  Row,
 } from '@tanstack/react-table';
 
 import { ArrowUpDown, ChevronDown, Download, Search, Settings2 } from "lucide-react";
@@ -26,7 +27,9 @@ interface AdvancedTableProps {
 
 const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [globalFilter, setGlobalFilter] = React.useState('');
-  const table = useReactTable({
+  const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
+
+  const table = useReactTable<RowData>({
     data,
     columns,
     state: {
@@ -59,8 +62,27 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     const baseStyle = "px-4 py-2 text-white rounded-md";
     const enabledStyle = "bg-white text-[#09090B] border-[#09090B] border hover:bg-[#f0f0f0]";
     const disabledStyle = "bg-white text-[#848485] border-[#848485] border cursor-not-allowed";
-    
+
     return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const newSelectedRows = new Set(table.getRowModel().rows.map(row => row.id));
+      setSelectedRows(newSelectedRows);
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleRowSelect = (rowId: string, checked: boolean) => {
+    const newSelectedRows = new Set(selectedRows);
+    if (checked) {
+      newSelectedRows.add(rowId);
+    } else {
+      newSelectedRows.delete(rowId);
+    }
+    setSelectedRows(newSelectedRows);
   };
 
   return (
@@ -92,6 +114,15 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         <thead className="bg-white">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
+              {/* Checkbox Column */}
+              <th className="px-1 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 w-[10px]">
+                <input
+                  type="checkbox"
+                  onChange={handleSelectAll}
+                  checked={selectedRows.size === table.getRowModel().rows.length}
+                  className="w-4 h-4"
+                />
+              </th>
               {headerGroup.headers.map((header, index) => (
                 <th
                   key={header.id}
@@ -119,16 +150,24 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           ))}
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {table.getRowModel().rows.map((row, rowIndex) => (
+          {table.getRowModel().rows.map((row: Row<RowData>, rowIndex) => (
             <tr key={row.id}>
+              {/* Checkbox for row selection */}
+              <td className="px-1 py-2">
+                <input
+                  type="checkbox"
+                  checked={selectedRows.has(row.id)}
+                  onChange={(e) => handleRowSelect(row.id, e.target.checked)}
+                  className="w-4 h-4"
+                />
+              </td>
               {row.getVisibleCells().map((cell, cellIndex) => (
                 <td
                   key={cell.id}
                   className={`px-4 py-2 text-sm text-gray-600 border-r border-gray-300 last:border-r-0 ${
                     rowIndex === 0 && cellIndex === 0 ? 'rounded-tl-lg' : '' // Top-left corner
                   } ${
-                    rowIndex === 0 &&
-                    cellIndex === row.getVisibleCells().length - 1
+                    rowIndex === 0 && cellIndex === row.getVisibleCells().length - 1
                       ? 'rounded-tr-lg'
                       : '' // Top-right corner
                   } ${
@@ -153,6 +192,13 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           ))}
         </tbody>
       </table>
+
+      {/* Row Selection Info */}
+      <div className="mt-4">
+        <span className="text-sm">
+          {selectedRows.size} of {table.getRowModel().rows.length} rows selected
+        </span>
+      </div>
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
