@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lalezar&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+.p-4{
+  background: linear-gradient(#D2DAFE, #EEE8F5);
+  height: 100vh;
+}
+
+.heading{
+  font-size: xx-large !important;
+  font-weight: 690 !important;
+  font-family: "Montserrat", serif;
+  color: #222A3D;
+}
+button{
+  font-family: "Montserrat", serif;
+}
+
+.table-container {
+    background-color: #f4f4f4;
+    width: 100%;
+    padding: 20px;
+    /* border-radius: 25px !important; */
+  }
+  /* table.rounded-corners th, table.rounded-corners td {
+    border: 1px solid black;
+  }
+
+  table.rounded-corners {
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 25px;
+    border: 1px solid black;
+  } */
+  
+  .search-container {
+    margin-bottom: 10px;
+  }
+  
+  .search-bar {
+    width: 40% !important; 
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  .resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: transparent;
+    user-select: none;
+  }
+  
+  .resizer:hover {
+    background-color: #007acc;
+  }
+  
+/*   
+  .advanced-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .advanced-table th,
+  .advanced-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .advanced-table th {
+    background-color: #f4f4f4;
+    cursor: pointer;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+   */
+  /* .pagination button,
+  .pagination select {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    color: #fff;
+    background-color: #007bff;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .export-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    color: #fff;
+    background-color: #007bff;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  
+  .export-btn:hover {
+    background-color: #0056b3;
+  }
+   */
