@@ -44,20 +44,13 @@ button{
     font-size: 16px;
   }
 
-  .resizer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 1px;
-    height: 100%;
-    cursor: col-resize;
-    background-color: transparent;
-    user-select: none;
+  .resizable-column-handle {
+    background-color: #ccc;
+    border-left: 2px solid #999;
+    cursor: ew-resize;
+    z-index: 100;
   }
   
-  .resizer:hover {
-    background-color: #007acc;
-  }
   
 /*   
   .advanced-table {
@@ -76,6 +69,7 @@ button{
     background-color: #f4f4f4;
     cursor: pointer;
   }
+
   
   .pagination {
     display: flex;

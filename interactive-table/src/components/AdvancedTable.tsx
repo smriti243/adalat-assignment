@@ -94,7 +94,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       const startWidth = columnWidths[columnId] || 200; // Default width if not set
 
       const handleMouseMove = (moveEvent: MouseEvent) => {
-        const newWidth = Math.max(20, startWidth + moveEvent.clientX - startX); // Minimum width of 50px
+        const newWidth = Math.max(50, startWidth + moveEvent.clientX - startX); // Minimum width of 50px
         setColumnWidths((prev) => ({
           ...prev,
           [columnId]: newWidth,
@@ -116,7 +116,6 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const modifiedColumns = [
     ...columns.filter(col => col.header !== 'Checkpoints'), // Exclude Checkpoints from the dropdown
   ];
-  
 
   useEffect(() => {
     if (buttonRef.current && dropdownVisible) {
@@ -148,7 +147,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         <input
           type="text"
           placeholder="Search..."
-          value={globalFilter ?? ''}
+          value={globalFilter ?? ''} // Fallback to empty string if undefined
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 search-bar w-full"
         />
@@ -199,9 +198,15 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="text-left p-2 border-b border-r border-gray-200" // Added border-right
+                    className="text-left p-2 border-b border-r border-gray-200 relative" // Add relative to header
+                    style={{ width: columnWidths[header.id] || 200 }} // Dynamically set the width
                   >
-                    {/* Ensure flexRender returns a valid ReactNode */}
+                    <div
+                      className="resizable-column-handle absolute right-0 top-0 h-full cursor-ew-resize"
+                      onMouseDown={(e) => handleColumnResize(header.id, e)}
+                      style={{ width: '10px' }} // Handle width
+                    />
+                    {/* Render column header */}
                     {typeof header.column.columnDef.header === 'string'
                       ? header.column.columnDef.header
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -216,7 +221,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="p-2 border-b border-r border-gray-200" // Added border-right
+                    className="p-2 border-b border-r border-gray-200"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -228,26 +233,26 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-4">
-        {/* Previous and Next Buttons */}
-        <button
-          onClick={() => table.setPageIndex(table.getState().pagination.pageIndex - 1)}
-          disabled={!table.getCanPreviousPage()}
-          className="px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <span>
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
-          {table.getPageCount()}
-        </span>
-        <button
-          onClick={() => table.setPageIndex(table.getState().pagination.pageIndex + 1)}
-          disabled={!table.getCanNextPage()}
-          className="px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 disabled:opacity-50"
-        >
-          Next
-        </button>
+      <div className="mt-4 flex justify-between items-center">
+        <div>
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className={buttonStyles(table.getCanPreviousPage())}
+          >
+            Previous
+          </button>
+          <span className="mx-2">
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </span>
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className={buttonStyles(table.getCanNextPage())}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
