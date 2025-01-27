@@ -114,21 +114,9 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
   // Modified columns without including "Checkpoints" in the dropdown menu
   const modifiedColumns = [
-    {
-      header: 'Checkpoints',
-      accessorKey: 'checkpoints',
-      cell: ({ row }: any) => (
-        <input
-          type="checkbox"
-          checked={selectedRows.has(row.id)}
-          onChange={(e) => handleRowSelect(row.id, e.target.checked)}
-        />
-      ),
-      enableSorting: false, // Disabling sorting on the Checkpoints column
-      enableFiltering: false, // Disable filtering
-    },
     ...columns.filter(col => col.header !== 'Checkpoints'), // Exclude Checkpoints from the dropdown
   ];
+  
 
   useEffect(() => {
     if (buttonRef.current && dropdownVisible) {
