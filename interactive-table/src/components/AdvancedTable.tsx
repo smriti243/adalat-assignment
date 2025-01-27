@@ -112,6 +112,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     [columnWidths]
   );
 
+  // Modified columns without including "Checkpoints" in the dropdown menu
   const modifiedColumns = [
     {
       header: 'Checkpoints',
@@ -126,7 +127,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       enableSorting: false, // Disabling sorting on the Checkpoints column
       enableFiltering: false, // Disable filtering
     },
-    ...columns,
+    ...columns.filter(col => col.header !== 'Checkpoints'), // Exclude Checkpoints from the dropdown
   ];
 
   useEffect(() => {
@@ -148,8 +149,6 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       });
     }
   }, [dropdownVisible]);
-  
-  
 
   return (
     <div className="p-4">
@@ -185,23 +184,22 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
         {/* Dropdown Menu */}
         {dropdownVisible && (
-  <div
-    className="absolute bg-white border rounded-md shadow-lg z-10 w-48 max-w-full" // max-w-full to prevent exceeding screen width
-    style={{
-      top: `${dropdownPosition.top}px`,
-      left: `${dropdownPosition.left}px`,
-    }}
-  >
-    <ul className="p-2">
-      {modifiedColumns.map((col, index) => (
-        <li key={index} className="cursor-pointer p-2 hover:bg-gray-100">
-          {col.header as string}
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
-
+          <div
+            className="absolute bg-white border rounded-md shadow-lg z-10 w-48 max-w-full" // max-w-full to prevent exceeding screen width
+            style={{
+              top: `${dropdownPosition.top}px`,
+              left: `${dropdownPosition.left}px`,
+            }}
+          >
+            <ul className="p-2">
+              {modifiedColumns.map((col, index) => (
+                <li key={index} className="cursor-pointer p-2 hover:bg-gray-100">
+                  {col.header as string}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Table Body */}
@@ -244,43 +242,24 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         {/* Previous and Next Buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-            className={buttonStyles(table.getCanPreviousPage())}
-          >
-            First
-          </button>
-          <button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className={buttonStyles(table.getCanPreviousPage())}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className={buttonStyles(table.getCanNextPage())}
-          >
-            Next
-          </button>
-          <button
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-            className={buttonStyles(table.getCanNextPage())}
-          >
-            Last
-          </button>
-        </div>
-
-        <div>
-          {/* Row Selection and Page Info */}
-          <div className="flex items-center gap-2">
-            <span>Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}</span>
-          </div>
-        </div>
+        <button
+          onClick={() => table.setPageIndex(table.getState().pagination.pageIndex - 1)}
+          disabled={!table.getCanPreviousPage()}
+          className="px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>
+          Page {table.getState().pagination.pageIndex + 1} of{' '}
+          {table.getPageCount()}
+        </span>
+        <button
+          onClick={() => table.setPageIndex(table.getState().pagination.pageIndex + 1)}
+          disabled={!table.getCanNextPage()}
+          className="px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );
