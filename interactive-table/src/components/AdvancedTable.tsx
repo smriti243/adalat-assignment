@@ -11,7 +11,7 @@ import {
   Row,
 } from '@tanstack/react-table';
 
-import { ArrowUpDown, ChevronDown, Download, Search, Settings2 } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Download, Search, Settings2 } from 'lucide-react';
 
 interface RowData {
   name: string;
@@ -68,7 +68,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      const newSelectedRows = new Set(table.getRowModel().rows.map(row => row.id));
+      const newSelectedRows = new Set(table.getRowModel().rows.map((row) => row.id));
       setSelectedRows(newSelectedRows);
     } else {
       setSelectedRows(new Set());
@@ -137,7 +137,6 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         <thead className="bg-white">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
-              {/* Checkbox Column */}
               <th className="px-1 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 w-[10px]">
                 <input
                   type="checkbox"
@@ -151,7 +150,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
                 return (
                   <th
                     key={header.id}
-                    className={`relative px-4 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 last:border-r-0`}
+                    className="relative px-4 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 last:border-r-0"
                     style={{
                       width: columnWidths[columnId] || header.getSize(),
                     }}
@@ -176,7 +175,6 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         <tbody className="divide-y divide-gray-200">
           {table.getRowModel().rows.map((row: Row<RowData>, rowIndex) => (
             <tr key={row.id}>
-              {/* Checkbox for row selection */}
               <td className="px-1 py-2">
                 <input
                   type="checkbox"
@@ -188,7 +186,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
               {row.getVisibleCells().map((cell, cellIndex) => (
                 <td
                   key={cell.id}
-                  className={`px-4 py-2 text-sm text-gray-600 border-r border-gray-300 last:border-r-0`}
+                  className="px-4 py-2 text-sm text-gray-600 border-r border-gray-300 last:border-r-0"
                   style={{
                     width: columnWidths[cell.column.id] || cell.column.getSize(),
                   }}
@@ -201,29 +199,28 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         </tbody>
       </table>
 
-      {/* Row Selection Info */}
       <div className="mt-4">
         <span className="text-sm">
           {selectedRows.size} of {table.getRowModel().rows.length} rows selected
         </span>
       </div>
 
-      {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className={buttonStyles(table.getCanPreviousPage())}
+          className={`${buttonStyles(true)} ${!table.getCanPreviousPage() && 'opacity-50'}`}
         >
           Previous
         </button>
         <span className="text-sm">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          Page {table.getState().pagination.pageIndex + 1} of{' '}
+          {table.getPageCount()}
         </span>
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className={buttonStyles(table.getCanNextPage())}
+          className={`${buttonStyles(true)} ${!table.getCanNextPage() && 'opacity-50'}`}
         >
           Next
         </button>
