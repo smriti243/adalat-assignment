@@ -192,29 +192,34 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       {/* Table Body */}
       <div className="overflow-x-auto">
         <table className="table-auto w-full">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="text-left p-2 border-b border-r border-gray-200 relative" // Add relative to header
-                    style={{ width: columnWidths[header.id] || 200 }} // Dynamically set the width
-                  >
-                    <div
-                      className="resizable-column-handle absolute right-0 top-0 h-full cursor-ew-resize"
-                      onMouseDown={(e) => handleColumnResize(header.id, e)}
-                      style={{ width: '10px' }} // Handle width
-                    />
-                    {/* Render column header */}
-                    {typeof header.column.columnDef.header === 'string'
-                      ? header.column.columnDef.header
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
+        <thead>
+  {table.getHeaderGroups().map((headerGroup) => (
+    <tr key={headerGroup.id}>
+      {headerGroup.headers.map((header) => (
+        <th
+          key={header.id}
+          className="text-left p-2 border-b border-r border-gray-200 relative" // Removed flex from here
+          style={{ width: columnWidths[header.id] || 200 }} // Dynamically set the width
+        >
+          <div
+            className="resizable-column-handle absolute right-0 top-0 h-full cursor-ew-resize"
+            onMouseDown={(e) => handleColumnResize(header.id, e)}
+            style={{ width: '10px' }} // Handle width
+          />
+          {/* Column Header with Arrow Icon */}
+          <div className="inline-flex items-center"> {/* Change to inline-flex to prevent vertical stacking */}
+            {typeof header.column.columnDef.header === 'string'
+              ? header.column.columnDef.header
+              : flexRender(header.column.columnDef.header, header.getContext())}
+            <ArrowUpDown className="h-4 w-4 text-gray-500 ml-1" /> {/* Arrow icon with margin */}
+          </div>
+        </th>
+      ))}
+    </tr>
+  ))}
+</thead>
+
+
           <tbody>
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id}>
