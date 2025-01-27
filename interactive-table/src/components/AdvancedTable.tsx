@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { saveAs } from 'file-saver';
 import {
   useReactTable,
@@ -20,7 +20,7 @@ interface RowData {
 }
 
 interface AdvancedTableProps {
-  columns: ColumnDef<RowData>[];
+  columns: ColumnDef<RowData>[]; 
   data: RowData[];
 }
 
@@ -29,6 +29,9 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
   const [columnWidths, setColumnWidths] = useState<{ [key: string]: number }>({});
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const table = useReactTable<RowData>({
     data,
@@ -109,6 +112,45 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     [columnWidths]
   );
 
+  const modifiedColumns = [
+    {
+      header: 'Checkpoints',
+      accessorKey: 'checkpoints',
+      cell: ({ row }: any) => (
+        <input
+          type="checkbox"
+          checked={selectedRows.has(row.id)}
+          onChange={(e) => handleRowSelect(row.id, e.target.checked)}
+        />
+      ),
+      enableSorting: false, // Disabling sorting on the Checkpoints column
+      enableFiltering: false, // Disable filtering
+    },
+    ...columns,
+  ];
+
+  useEffect(() => {
+    if (buttonRef.current && dropdownVisible) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const screenWidth = window.innerWidth;
+  
+      let newLeft = buttonRect.left + window.scrollX;
+      const dropdownWidth = 192; // Adjust width based on your dropdown content
+  
+      // Adjust the dropdown position if it extends beyond the screen width
+      if (newLeft + dropdownWidth > screenWidth) {
+        newLeft = screenWidth - dropdownWidth; // Position it to the right of the screen
+      }
+  
+      setDropdownPosition({
+        top: buttonRect.bottom + window.scrollY, // Position below the button
+        left: newLeft, // Adjusted position based on screen width
+      });
+    }
+  }, [dropdownVisible]);
+  
+  
+
   return (
     <div className="p-4">
       <div className="heading">
@@ -133,6 +175,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         </button>
 
         <button
+          ref={buttonRef}
           onClick={() => setDropdownVisible(!dropdownVisible)}
           className="ml-2 px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 flex items-center relative"
         >
@@ -142,16 +185,23 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
         {/* Dropdown Menu */}
         {dropdownVisible && (
-          <div className="absolute bg-white border rounded-md shadow-lg z-10 mt-2 w-48">
-            <ul className="p-2">
-              {columns.map((col, index) => (
-                <li key={index} className="cursor-pointer p-2 hover:bg-gray-100">
-                  {col.header as string} {/* Ensure the column header is a string */}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+  <div
+    className="absolute bg-white border rounded-md shadow-lg z-10 w-48 max-w-full" // max-w-full to prevent exceeding screen width
+    style={{
+      top: `${dropdownPosition.top}px`,
+      left: `${dropdownPosition.left}px`,
+    }}
+  >
+    <ul className="p-2">
+      {modifiedColumns.map((col, index) => (
+        <li key={index} className="cursor-pointer p-2 hover:bg-gray-100">
+          {col.header as string}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
       </div>
 
       {/* Table Body */}
@@ -209,17 +259,6 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           >
             Previous
           </button>
-        </div>
-
-        {/* Page Numbers in the Center */}
-        <div className="flex-grow text-center">
-          <span className="text-sm">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </span>
-        </div>
-
-        {/* Next and Last Buttons */}
-        <div className="flex gap-2">
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -234,6 +273,13 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           >
             Last
           </button>
+        </div>
+
+        <div>
+          {/* Row Selection and Page Info */}
+          <div className="flex items-center gap-2">
+            <span>Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}</span>
+          </div>
         </div>
       </div>
     </div>
