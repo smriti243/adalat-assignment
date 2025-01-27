@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { saveAs } from 'file-saver';
 import {
   useReactTable,
@@ -28,6 +28,7 @@ interface AdvancedTableProps {
 const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
+  const [columnWidths, setColumnWidths] = useState<{ [key: string]: number }>({});
 
   const table = useReactTable<RowData>({
     data,
@@ -40,7 +41,6 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onGlobalFilterChange: setGlobalFilter,
-    columnResizeMode: 'onChange', // Enable column resizing
   });
 
   const exportToCsv = () => {
@@ -85,12 +85,35 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     setSelectedRows(newSelectedRows);
   };
 
+  const handleColumnResize = useCallback(
+    (columnId: string, event: React.MouseEvent) => {
+      const startX = event.clientX;
+      const startWidth = columnWidths[columnId] || 200; // Default width if not set
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const newWidth = Math.max(20, startWidth + moveEvent.clientX - startX); // Minimum width of 50px
+        setColumnWidths((prev) => ({
+          ...prev,
+          [columnId]: newWidth,
+        }));
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    },
+    [columnWidths]
+  );
+
   return (
     <div className="p-4">
       <div className="heading">
         <h1>DataHub</h1>
       </div>
-      {/* Global Filter */}
       <div className="flex items-center gap-2 mb-4">
         <Search className="h-5 w-5 text-muted-foreground" />
         <input
@@ -100,12 +123,12 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 search-bar w-full"
         />
-        {/* Export Button moved here */}
+
         <button
           onClick={exportToCsv}
           className="ml-auto px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 flex items-center"
         >
-          <Download className="h-4 w-4 mr-2" /> {/* Download Icon */}
+          <Download className="h-4 w-4 mr-2" />
           Export
         </button>
       </div>
@@ -123,29 +146,30 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
                   className="w-4 h-4"
                 />
               </th>
-              {headerGroup.headers.map((header, index) => (
-                <th
-                  key={header.id}
-                  className={`relative px-4 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 last:border-r-0 ${
-                    index === 0 ? 'rounded-tl-lg' : '' // Top-left corner
-                  } ${
-                    index === headerGroup.headers.length - 1
-                      ? 'rounded-tr-lg'
-                      : '' // Top-right corner
-                  }`}
-                  style={{
-                    width: header.getSize(),
-                  }}
-                >
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={header.column.getToggleSortingHandler()}
+              {headerGroup.headers.map((header, index) => {
+                const columnId = header.id;
+                return (
+                  <th
+                    key={header.id}
+                    className={`relative px-4 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 last:border-r-0`}
+                    style={{
+                      width: columnWidths[columnId] || header.getSize(),
+                    }}
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    <ArrowUpDown className="ml-2 h-4 w-4 text-gray-500" /> {/* Always visible sort icon */}
-                  </div>
-                </th>
-              ))}
+                    <div
+                      className="flex items-center justify-between cursor-pointer"
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      <ArrowUpDown className="ml-2 h-4 w-4 text-gray-500" />
+                    </div>
+                    <div
+                      className="absolute right-0 top-0 h-full w-1 cursor-col-resize"
+                      onMouseDown={(e) => handleColumnResize(columnId, e)}
+                    />
+                  </th>
+                );
+              })}
             </tr>
           ))}
         </thead>
@@ -164,25 +188,9 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
               {row.getVisibleCells().map((cell, cellIndex) => (
                 <td
                   key={cell.id}
-                  className={`px-4 py-2 text-sm text-gray-600 border-r border-gray-300 last:border-r-0 ${
-                    rowIndex === 0 && cellIndex === 0 ? 'rounded-tl-lg' : '' // Top-left corner
-                  } ${
-                    rowIndex === 0 && cellIndex === row.getVisibleCells().length - 1
-                      ? 'rounded-tr-lg'
-                      : '' // Top-right corner
-                  } ${
-                    rowIndex === table.getRowModel().rows.length - 1 &&
-                    cellIndex === 0
-                      ? 'rounded-bl-lg'
-                      : '' // Bottom-left corner
-                  } ${
-                    rowIndex === table.getRowModel().rows.length - 1 &&
-                    cellIndex === row.getVisibleCells().length - 1
-                      ? 'rounded-br-lg'
-                      : '' // Bottom-right corner
-                  }`}
+                  className={`px-4 py-2 text-sm text-gray-600 border-r border-gray-300 last:border-r-0`}
                   style={{
-                    width: cell.column.getSize(),
+                    width: columnWidths[cell.column.id] || cell.column.getSize(),
                   }}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
