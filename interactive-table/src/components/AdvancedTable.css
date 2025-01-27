@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lalezar&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 .p-4{
-  background: linear-gradient(#D2DAFE, #EEE8F5);
+  background-color: #ffffff;
   height: 100vh;
 }
 
@@ -9,14 +9,14 @@
   font-size: xx-large !important;
   font-weight: 690 !important;
   font-family: "Montserrat", serif;
-  color: #222A3D;
+  color: #09090B;
 }
 button{
   font-family: "Montserrat", serif;
 }
 
 .table-container {
-    background-color: #f4f4f4;
+    background-color: #ffffff;
     width: 100%;
     padding: 20px;
     /* border-radius: 25px !important; */
