@@ -81,10 +81,9 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     const baseStyle = "px-4 py-2 text-white rounded-md";
     const enabledStyle = "bg-white text-[#09090B] border-[#09090B] border hover:bg-[#f0f0f0]";
     const disabledStyle = "bg-white text-[#09090B] border-[#848485] border cursor-not-allowed opacity-80"; // Reduced opacity for disabled state
-  
+
     return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
   };
-  
 
   const handleColumnResize = useCallback(
     (columnId: string, event: React.MouseEvent) => {
@@ -162,7 +161,10 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="text-left p-2">
+                  <th
+                    key={header.id}
+                    className="text-left p-2 border-b border-r border-gray-200" // Added border-right
+                  >
                     {/* Ensure flexRender returns a valid ReactNode */}
                     {typeof header.column.columnDef.header === 'string'
                       ? header.column.columnDef.header
@@ -176,7 +178,10 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="p-2">
+                  <td
+                    key={cell.id}
+                    className="p-2 border-b border-r border-gray-200" // Added border-right
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -188,50 +193,49 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
-  {/* Previous and Next Buttons */}
-  <div className="flex gap-2">
-    <button
-      onClick={() => table.setPageIndex(0)}
-      disabled={!table.getCanPreviousPage()}
-      className={buttonStyles(table.getCanPreviousPage())}
-    >
-      First
-    </button>
-    <button
-      onClick={() => table.previousPage()}
-      disabled={!table.getCanPreviousPage()}
-      className={buttonStyles(table.getCanPreviousPage())}
-    >
-      Previous
-    </button>
-  </div>
+        {/* Previous and Next Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+            className={buttonStyles(table.getCanPreviousPage())}
+          >
+            First
+          </button>
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className={buttonStyles(table.getCanPreviousPage())}
+          >
+            Previous
+          </button>
+        </div>
 
-  {/* Page Numbers in the Center */}
-  <div className="flex-grow text-center">
-    <span className="text-sm">
-      Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-    </span>
-  </div>
+        {/* Page Numbers in the Center */}
+        <div className="flex-grow text-center">
+          <span className="text-sm">
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </span>
+        </div>
 
-  {/* Next and Last Buttons */}
-  <div className="flex gap-2">
-    <button
-      onClick={() => table.nextPage()}
-      disabled={!table.getCanNextPage()}
-      className={buttonStyles(table.getCanNextPage())}
-    >
-      Next
-    </button>
-    <button
-      onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-      disabled={!table.getCanNextPage()}
-      className={buttonStyles(table.getCanNextPage())}
-    >
-      Last
-    </button>
-  </div>
-</div>
-
+        {/* Next and Last Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className={buttonStyles(table.getCanNextPage())}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+            className={buttonStyles(table.getCanNextPage())}
+          >
+            Last
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
