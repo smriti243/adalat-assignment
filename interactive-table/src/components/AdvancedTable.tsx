@@ -8,7 +8,6 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   ColumnDef,
-  Row,
 } from '@tanstack/react-table';
 
 import { ArrowUpDown, ChevronDown, Download, Search, Settings2 } from 'lucide-react';
@@ -29,6 +28,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
   const [columnWidths, setColumnWidths] = useState<{ [key: string]: number }>({});
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const table = useReactTable<RowData>({
     data,
@@ -58,14 +58,6 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     saveAs(blob, 'table-data.csv');
   };
 
-  const buttonStyles = (canClick: boolean) => {
-    const baseStyle = "px-4 py-2 text-white rounded-md";
-    const enabledStyle = "bg-white text-[#09090B] border-[#09090B] border hover:bg-[#f0f0f0]";
-    const disabledStyle = "bg-white text-[#848485] border-[#848485] border cursor-not-allowed";
-
-    return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
-  };
-
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       const newSelectedRows = new Set(table.getRowModel().rows.map((row) => row.id));
@@ -84,6 +76,15 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     }
     setSelectedRows(newSelectedRows);
   };
+
+  const buttonStyles = (canClick: boolean) => {
+    const baseStyle = "px-4 py-2 text-white rounded-md";
+    const enabledStyle = "bg-white text-[#09090B] border-[#09090B] border hover:bg-[#f0f0f0]";
+    const disabledStyle = "bg-white text-[#09090B] border-[#848485] border cursor-not-allowed opacity-80"; // Reduced opacity for disabled state
+  
+    return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
+  };
+  
 
   const handleColumnResize = useCallback(
     (columnId: string, event: React.MouseEvent) => {
@@ -132,105 +133,105 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           Export
         </button>
 
-        {/* View Button with Settings Icon */}
-        <button className="ml-2 px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 flex items-center">
+        <button
+          onClick={() => setDropdownVisible(!dropdownVisible)}
+          className="ml-2 px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 flex items-center relative"
+        >
           <Settings2 className="h-4 w-4 mr-2" />
           View
         </button>
-      </div>
 
-      <table className="min-w-full border border-gray-300 rounded-lg shadow-md table-container">
-        <thead className="bg-white">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              <th className="px-1 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 w-[10px]">
-                <input
-                  type="checkbox"
-                  onChange={handleSelectAll}
-                  checked={selectedRows.size === table.getRowModel().rows.length}
-                  className="w-4 h-4"
-                />
-              </th>
-              {headerGroup.headers.map((header, index) => {
-                const columnId = header.id;
-                return (
-                  <th
-                    key={header.id}
-                    className="relative px-4 py-2 text-left text-sm font-semibold text-gray-700 border-r border-gray-300 last:border-r-0"
-                    style={{
-                      width: columnWidths[columnId] || header.getSize(),
-                    }}
-                  >
-                    <div
-                      className="flex items-center justify-between cursor-pointer"
-                      onClick={header.column.getToggleSortingHandler()}
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      <ArrowUpDown className="ml-2 h-4 w-4 text-gray-500" />
-                    </div>
-                    <div
-                      className="absolute right-0 top-0 h-full w-1 cursor-col-resize"
-                      onMouseDown={(e) => handleColumnResize(columnId, e)}
-                    />
-                  </th>
-                );
-              })}
-            </tr>
-          ))}
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {table.getRowModel().rows.map((row: Row<RowData>, rowIndex) => (
-            <tr key={row.id}>
-              <td className="px-1 py-2">
-                <input
-                  type="checkbox"
-                  checked={selectedRows.has(row.id)}
-                  onChange={(e) => handleRowSelect(row.id, e.target.checked)}
-                  className="w-4 h-4"
-                />
-              </td>
-              {row.getVisibleCells().map((cell, cellIndex) => (
-                <td
-                  key={cell.id}
-                  className="px-4 py-2 text-sm text-gray-600 border-r border-gray-300 last:border-r-0"
-                  style={{
-                    width: columnWidths[cell.column.id] || cell.column.getSize(),
-                  }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+        {/* Dropdown Menu */}
+        {dropdownVisible && (
+          <div className="absolute bg-white border rounded-md shadow-lg z-10 mt-2 w-48">
+            <ul className="p-2">
+              {columns.map((col, index) => (
+                <li key={index} className="cursor-pointer p-2 hover:bg-gray-100">
+                  {col.header as string} {/* Ensure the column header is a string */}
+                </li>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="mt-4">
-        <span className="text-sm">
-          {selectedRows.size} of {table.getRowModel().rows.length} rows selected
-        </span>
+            </ul>
+          </div>
+        )}
       </div>
 
+      {/* Table Body */}
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className="text-left p-2">
+                    {/* Ensure flexRender returns a valid ReactNode */}
+                    {typeof header.column.columnDef.header === 'string'
+                      ? header.column.columnDef.header
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="p-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
-        <button
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          className={`${buttonStyles(true)} ${!table.getCanPreviousPage() && 'opacity-50'}`}
-        >
-          Previous
-        </button>
-        <span className="text-sm">
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
-          {table.getPageCount()}
-        </span>
-        <button
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          className={`${buttonStyles(true)} ${!table.getCanNextPage() && 'opacity-50'}`}
-        >
-          Next
-        </button>
-      </div>
+  {/* Previous and Next Buttons */}
+  <div className="flex gap-2">
+    <button
+      onClick={() => table.setPageIndex(0)}
+      disabled={!table.getCanPreviousPage()}
+      className={buttonStyles(table.getCanPreviousPage())}
+    >
+      First
+    </button>
+    <button
+      onClick={() => table.previousPage()}
+      disabled={!table.getCanPreviousPage()}
+      className={buttonStyles(table.getCanPreviousPage())}
+    >
+      Previous
+    </button>
+  </div>
+
+  {/* Page Numbers in the Center */}
+  <div className="flex-grow text-center">
+    <span className="text-sm">
+      Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+    </span>
+  </div>
+
+  {/* Next and Last Buttons */}
+  <div className="flex gap-2">
+    <button
+      onClick={() => table.nextPage()}
+      disabled={!table.getCanNextPage()}
+      className={buttonStyles(table.getCanNextPage())}
+    >
+      Next
+    </button>
+    <button
+      onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+      disabled={!table.getCanNextPage()}
+      className={buttonStyles(table.getCanNextPage())}
+    >
+      Last
+    </button>
+  </div>
+</div>
+
     </div>
   );
 };
