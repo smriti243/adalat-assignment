@@ -10,7 +10,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 
-import { ArrowUpDown, ChevronDown, Download, Search, Settings2 } from 'lucide-react';
+import { ArrowUpDown, ChevronDown, Download, Search, Settings2, Check } from 'lucide-react';
 
 interface RowData {
   name: string;
@@ -28,6 +28,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
   const [columnWidths, setColumnWidths] = useState<{ [key: string]: number }>({});
+  const [visibleColumns, setVisibleColumns] = useState(new Set(columns.map(col => col.header)));
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
@@ -35,7 +36,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
   const table = useReactTable<RowData>({
     data,
-    columns,
+    columns: columns.filter(col => visibleColumns.has(col.header)),
     state: {
       globalFilter,
     },
@@ -137,6 +138,15 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     }
   }, [dropdownVisible]);
 
+  const toggleColumnVisibility = (header: string) => {
+    setVisibleColumns(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(header)) newSet.delete(header);
+      else newSet.add(header);
+      return newSet;
+    });
+  };
+
   return (
     <div className="p-4">
       <div className="heading">
@@ -170,7 +180,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         </button>
 
         {/* Dropdown Menu */}
-        {dropdownVisible && (
+        {/* {dropdownVisible && (
           <div
             className="absolute bg-white border rounded-md shadow-lg z-10 w-48 max-w-full" // max-w-full to prevent exceeding screen width
             style={{
@@ -186,7 +196,27 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
               ))}
             </ul>
           </div>
-        )}
+        )} */}
+
+{dropdownVisible && (
+        <div
+          className="absolute bg-white border rounded-md shadow-lg w-48 z-10"
+          style={{ top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }}
+        >
+          <ul className="p-2">
+            {columns.map((col) => (
+              <li
+                key={col.header as string}
+                className="cursor-pointer p-2 hover:bg-gray-100 flex items-center"
+                onClick={() => toggleColumnVisibility(col.header as string)}
+              >
+                {visibleColumns.has(col.header) && <Check className="h-4 w-4 mr-2 text-green-600" />}
+                {col.header as string}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       </div>
 
       {/* Table Body */}
