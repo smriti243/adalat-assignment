@@ -84,7 +84,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const buttonStyles = (canClick: boolean) => {
     const baseStyle = "px-4 py-2 text-white rounded-md";
     const enabledStyle = "bg-[#09090b] text-white border-white border hover:bg-[#09090b]/80";
-    const disabledStyle = "bg-[#09090b] text-white border-white border cursor-not-allowed "; // Reduced opacity for disabled state
+    const disabledStyle = "bg-[#9CA1AA] text-white border-white border cursor-not-allowed "; // Reduced opacity for disabled state
 
     return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
   };
@@ -268,27 +268,31 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
-        <div>
-          <button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className={buttonStyles(table.getCanPreviousPage())}
-          >
-            Previous
-          </button>
-          <span className="mx-2">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </span>
-          <button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className={buttonStyles(table.getCanNextPage())}
-          >
-            Next
-          </button>
-        </div>
-      </div>
+    <div className="mt-4 flex items-center justify-between">
+  {/* Previous Button at Far Left */}
+  <button
+    onClick={() => table.previousPage()}
+    disabled={!table.getCanPreviousPage()}
+    className={buttonStyles(table.getCanPreviousPage())}
+  >
+    Previous
+  </button>
+
+  {/* Page Indicator in the Center */}
+  <div className="flex-1 text-center">
+    Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+  </div>
+
+  {/* Next Button at Far Right */}
+  <button
+    onClick={() => table.nextPage()}
+    disabled={!table.getCanNextPage()}
+    className={buttonStyles(table.getCanNextPage())}
+  >
+    Next
+  </button>
+</div>
+
     </div>
   );
 };
