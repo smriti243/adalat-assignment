@@ -62,24 +62,24 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     saveAs(blob, 'table-data.csv');
   };
 
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      const newSelectedRows = new Set(table.getRowModel().rows.map((row) => row.id));
-      setSelectedRows(newSelectedRows);
-    } else {
-      setSelectedRows(new Set());
-    }
-  };
+  // const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.checked) {
+  //     const newSelectedRows = new Set(table.getRowModel().rows.map((row) => row.id));
+  //     setSelectedRows(newSelectedRows);
+  //   } else {
+  //     setSelectedRows(new Set());
+  //   }
+  // };
 
-  const handleRowSelect = (rowId: string, checked: boolean) => {
-    const newSelectedRows = new Set(selectedRows);
-    if (checked) {
-      newSelectedRows.add(rowId);
-    } else {
-      newSelectedRows.delete(rowId);
-    }
-    setSelectedRows(newSelectedRows);
-  };
+  // const handleRowSelect = (rowId: string, checked: boolean) => {
+  //   const newSelectedRows = new Set(selectedRows);
+  //   if (checked) {
+  //     newSelectedRows.add(rowId);
+  //   } else {
+  //     newSelectedRows.delete(rowId);
+  //   }
+  //   setSelectedRows(newSelectedRows);
+  // };
 
   const buttonStyles = (canClick: boolean) => {
     const baseStyle = "px-4 py-2 text-white rounded-md";
@@ -237,12 +237,22 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
             style={{ width: '10px' }} // Handle width
           />
           {/* Column Header with Arrow Icon */}
-          <div className="inline-flex items-center"> {/* Change to inline-flex to prevent vertical stacking */}
-            {typeof header.column.columnDef.header === 'string'
-              ? header.column.columnDef.header
-              : flexRender(header.column.columnDef.header, header.getContext())}
-            <ArrowUpDown className="h-4 w-4 text-gray-500 ml-1" /> {/* Arrow icon with margin */}
-          </div>
+          <div 
+  className="inline-flex items-center cursor-pointer" 
+  onClick={header.column.getToggleSortingHandler()} // Attach sorting handler
+>
+  {typeof header.column.columnDef.header === 'string'
+    ? header.column.columnDef.header
+    : flexRender(header.column.columnDef.header, header.getContext())}
+  
+  <ArrowUpDown 
+    className={`h-4 w-4 ml-1 transition-transform ${
+      header.column.getIsSorted() === 'asc' ? 'rotate-180 text-black' : 
+      header.column.getIsSorted() === 'desc' ? 'text-black' : 'text-gray-500'
+    }`} 
+  />
+</div>
+
         </th>
       ))}
     </tr>
