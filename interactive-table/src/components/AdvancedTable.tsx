@@ -62,29 +62,12 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     saveAs(blob, 'table-data.csv');
   };
 
-  // const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.checked) {
-  //     const newSelectedRows = new Set(table.getRowModel().rows.map((row) => row.id));
-  //     setSelectedRows(newSelectedRows);
-  //   } else {
-  //     setSelectedRows(new Set());
-  //   }
-  // };
-
-  // const handleRowSelect = (rowId: string, checked: boolean) => {
-  //   const newSelectedRows = new Set(selectedRows);
-  //   if (checked) {
-  //     newSelectedRows.add(rowId);
-  //   } else {
-  //     newSelectedRows.delete(rowId);
-  //   }
-  //   setSelectedRows(newSelectedRows);
-  // };
+ 
 
   const buttonStyles = (canClick: boolean) => {
     const baseStyle = "px-4 py-2 text-white rounded-md";
     const enabledStyle = "bg-[#09090b] text-white border-white border hover:bg-[#09090b]/80";
-    const disabledStyle = "bg-[#9CA1AA] text-white border-white border cursor-not-allowed "; // Reduced opacity for disabled state
+    const disabledStyle = "bg-[#9CA1AA] text-white border-white border cursor-not-allowed"; // Reduced opacity for disabled state
 
     return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
   };
@@ -147,6 +130,20 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     });
   };
 
+  useEffect(() => {
+  const updateDropdownPosition = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left });
+    }
+  };
+  window.addEventListener("resize", updateDropdownPosition);
+  updateDropdownPosition();
+  return () => window.removeEventListener("resize", updateDropdownPosition);
+}, [dropdownVisible]);
+
+
+
   return (
     <div className="p-4">
       <div className="heading">
@@ -179,24 +176,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
           View
         </button>
 
-        {/* Dropdown Menu */}
-        {/* {dropdownVisible && (
-          <div
-            className="absolute bg-white border rounded-md shadow-lg z-10 w-48 max-w-full" // max-w-full to prevent exceeding screen width
-            style={{
-              top: `${dropdownPosition.top}px`,
-              left: `${dropdownPosition.left}px`,
-            }}
-          >
-            <ul className="p-2">
-              {modifiedColumns.map((col, index) => (
-                <li key={index} className="cursor-pointer p-2 hover:bg-gray-100">
-                  {col.header as string}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )} */}
+      
 
 {dropdownVisible && (
         <div
