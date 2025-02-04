@@ -283,48 +283,51 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
       </div>
 
       {/* Pagination */}
-    <div className="mt-4 flex items-center justify-between">
-  {/* Previous Button at Far Left */}
-  <button
-    onClick={() => table.previousPage()}
-    disabled={!table.getCanPreviousPage()}
-    className={buttonStyles(table.getCanPreviousPage())}
-  >
-    Previous
-  </button>
-  <div className="flex items-center gap-2">
-      <label htmlFor="pageSize">Rows per page:</label>
-      <select
-        id="pageSize"
-        value={pagination.pageSize} // Fix: use pagination.pageSize
-        onChange={(e) => setPageSize(Number(e.target.value))}
-        className="border rounded p-1"
-      >
-        {[5, 10, 20, 50].map((size) => (
-          <option key={size} value={size}>
-            {size} per page
-          </option>
-        ))}
-      </select>
+   {/* Pagination */}
+<div className="mt-4 flex flex-col items-center">
+  {/* Navigation Buttons (Previous & Next) */}
+  <div className="w-full flex justify-between items-center">
+    <button
+      onClick={() => table.previousPage()}
+      disabled={!table.getCanPreviousPage()}
+      className={buttonStyles(table.getCanPreviousPage())}
+    >
+      Previous
+    </button>
+
+    {/* Page Indicator in the Center */}
+    <div className="text-center">
+      Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
     </div>
 
-  {/* Page Indicator in the Center */}
-  <div className="flex-1 text-center">
-    Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+    <button
+      onClick={() => table.nextPage()}
+      disabled={!table.getCanNextPage()}
+      className={buttonStyles(table.getCanNextPage())}
+    >
+      Next
+    </button>
   </div>
 
-  {/* Next Button at Far Right */}
-  <button
-    onClick={() => table.nextPage()}
-    disabled={!table.getCanNextPage()}
-    className={buttonStyles(table.getCanNextPage())}
-  >
-    Next
-  </button>
+  {/* Rows per Page Selector Below the Page Number */}
+  <div className="mt-2 flex items-center gap-2">
+    <label htmlFor="pageSize">Rows per page:</label>
+    <select
+      id="pageSize"
+      value={pagination.pageSize} // Fix: use pagination.pageSize
+      onChange={(e) => setPageSize(Number(e.target.value))}
+      className="border rounded p-1"
+    >
+      {[5, 10, 20, 50].map((size) => (
+        <option key={size} value={size}>
+          {size} per page
+        </option>
+      ))}
+    </select>
+  </div>
 </div>
-
-    </div>
-  );
+</div>
+);
 };
 
 export default AdvancedTable;
