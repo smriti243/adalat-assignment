@@ -15,4 +15,7 @@ module.exports = {
     './public/index.html',
   ],
   plugins: [],
+
+  darkMode: "class", // Not "media"
+  
 };

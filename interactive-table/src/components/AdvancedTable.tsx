@@ -10,7 +10,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 
-import { ArrowUpDown, ChevronDown, Download, Search, Settings2, Check } from 'lucide-react';
+import { ArrowUpDown, ChevronDown, Download, Search, Settings2, Check, Moon, Sun } from 'lucide-react';
 
 interface RowData {
   name: string;
@@ -37,9 +37,34 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0, // default page index
-    pageSize: 10, // default page size
+    pageIndex: 0,
+    pageSize: 10,
   });
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    setDarkMode(storedTheme === "dark");
+  }, []);
+
+  
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+  
   
   
   const setPageSize = (size: number) => {
@@ -54,7 +79,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     columns: columns.filter(col => visibleColumns.has(col.header)),
     state: {
       globalFilter,
-      pagination , // Add a default pageIndex
+      pagination , 
     },
     
     getCoreRowModel: getCoreRowModel(),
@@ -64,9 +89,9 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: (updater) => {
       if (typeof updater === 'function') {
-        setPagination((prev) => updater(prev)); // Pass the full previous pagination state
+        setPagination((prev) => updater(prev)); 
       } else {
-        setPagination(updater); // Directly update with the new pagination state
+        setPagination(updater); 
       }
     },
     
@@ -74,7 +99,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
   const exportToCsv = () => {
     const rows = [
-      columns.map((col) => col.header), // Add headers
+      columns.map((col) => col.header), 
       ...table.getRowModel().rows.map((row) =>
         row.getVisibleCells().map((cell) => cell.getValue())
       ),
@@ -91,8 +116,8 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
   const buttonStyles = (canClick: boolean) => {
     const baseStyle = "px-4 py-2 text-white rounded-md";
-    const enabledStyle = "bg-[#09090b] text-white border-white border hover:bg-[#09090b]/80";
-    const disabledStyle = "bg-[#9CA1AA] text-white border-white border cursor-not-allowed"; // Reduced opacity for disabled state
+    const enabledStyle = "bg-[#09090b] text-white border-white border hover:bg-[#09090b]/80 dark:bg-white dark:text-[#09090b] dark:hover:bg-gray-500 dark:border-[#09090B]";
+    const disabledStyle = "bg-[#9CA1AA] text-white border-white dark:text-[#09090B] dark:border-[#09090B] border cursor-not-allowed"; 
 
     return canClick ? `${baseStyle} ${enabledStyle}` : `${baseStyle} ${disabledStyle}`;
   };
@@ -100,10 +125,10 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const handleColumnResize = useCallback(
     (columnId: string, event: React.MouseEvent) => {
       const startX = event.clientX;
-      const startWidth = columnWidths[columnId] || 200; // Default width if not set
+      const startWidth = columnWidths[columnId] || 200; 
 
       const handleMouseMove = (moveEvent: MouseEvent) => {
-        const newWidth = Math.max(50, startWidth + moveEvent.clientX - startX); // Minimum width of 50px
+        const newWidth = Math.max(50, startWidth + moveEvent.clientX - startX);
         setColumnWidths((prev) => ({
           ...prev,
           [columnId]: newWidth,
@@ -121,27 +146,31 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     [columnWidths]
   );
 
-  // Modified columns without including "Checkpoints" in the dropdown menu
+ 
   const modifiedColumns = [
-    ...columns.filter(col => col.header !== 'Checkpoints'), // Exclude Checkpoints from the dropdown
+    ...columns.filter(col => col.header !== 'Checkpoints'), 
   ];
-
   useEffect(() => {
-    if (buttonRef.current && dropdownVisible) {
-      const buttonRect = buttonRef.current.getBoundingClientRect();
+    if (dropdownVisible && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = 200; 
       const screenWidth = window.innerWidth;
+      
+      let leftPosition = rect.left + window.scrollX;
   
-      let newLeft = buttonRect.left + window.scrollX;
-      const dropdownWidth = 192; // Adjust width based on your dropdown content
-  
-      // Adjust the dropdown position if it extends beyond the screen width
-      if (newLeft + dropdownWidth > screenWidth) {
-        newLeft = screenWidth - dropdownWidth; // Position it to the right of the screen
+    
+      if (leftPosition + dropdownWidth > screenWidth) {
+        leftPosition = screenWidth - dropdownWidth - 20; 
       }
   
-      setDropdownPosition({
-        top: buttonRect.bottom + window.scrollY, // Position below the button
-        left: newLeft, // Adjusted position based on screen width
+  
+      if (leftPosition < 10) {
+        leftPosition = 10;
+      }
+  
+      setDropdownPosition({ 
+        top: rect.bottom + window.scrollY, 
+        left: leftPosition - 10 
       });
     }
   }, [dropdownVisible]);
@@ -155,38 +184,34 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     });
   };
 
-  useEffect(() => {
-  const updateDropdownPosition = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left });
-    }
-  };
-  window.addEventListener("resize", updateDropdownPosition);
-  updateDropdownPosition();
-  return () => window.removeEventListener("resize", updateDropdownPosition);
-}, [dropdownVisible]);
 
 
 
   return (
-    <div className="p-4">
-      <div className="heading">
-        <h1>DataHub</h1>
-      </div>
+<div className="p-4 bg-white dark:bg-[#09090B] min-h-screen text-gray-900 dark:text-white">
+  <div className="flex items-center justify-between mb-6">
+    <h1 className="text-2xl font-semibold dark:text-white">DataHub</h1>
+    <button
+      onClick={() => setDarkMode(!darkMode)}
+      className="flex items-center gap-2 p-2 border rounded-lg transition hover:bg-gray-200 dark:hover:bg-gray-800"
+    >
+      {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      {darkMode ? "Light Mode" : "Dark Mode"}
+    </button>
+  </div>
       <div className="flex items-center gap-2 mb-4">
-        <Search className="h-5 w-5 text-muted-foreground" />
+        <Search className="h-5 w-5 text-gray-500 dark:bg-gray-800 dark:text-gray-300 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search..."
-          value={globalFilter ?? ''} // Fallback to empty string if undefined
+          value={globalFilter ?? ''} 
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 search-bar w-full"
+          className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 dark:bg-[#09090B] search-bar w-full"
         />
 
         <button
           onClick={exportToCsv}
-          className="ml-auto px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 flex items-center"
+          className="ml-auto px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 dark:bg-white dark:text-[#09090B] dark:hover:bg-gray-500 flex items-center"
         >
           <Download className="h-4 w-4 mr-2" />
           Export
@@ -195,7 +220,7 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
         <button
           ref={buttonRef}
           onClick={() => setDropdownVisible(!dropdownVisible)}
-          className="ml-2 px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 flex items-center relative"
+          className="ml-2 px-4 py-2 bg-[#09090B] text-white rounded-md hover:bg-[#09090B]/80 dark:bg-white dark:text-[#09090b] dark:hover:bg-gray-500 flex items-center relative"
         >
           <Settings2 className="h-4 w-4 mr-2" />
           View
@@ -205,14 +230,14 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
 {dropdownVisible && (
         <div
-          className="absolute bg-white border rounded-md shadow-lg w-48 z-10"
+          className="absolute bg-white dark:bg-[#09090B] border rounded-md shadow-lg w-48 z-10"
           style={{ top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }}
         >
           <ul className="p-2">
             {columns.map((col) => (
               <li
                 key={col.header as string}
-                className="cursor-pointer p-2 hover:bg-gray-100 flex items-center"
+                className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
                 onClick={() => toggleColumnVisibility(col.header as string)}
               >
                 {visibleColumns.has(col.header) && <Check className="h-4 w-4 mr-2 text-green-600" />}
@@ -226,32 +251,33 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 
       {/* Table Body */}
       <div className="overflow-x-auto">
-        <table className="table-auto w-full">
+        <table className="table-auto w-full ">
         <thead>
   {table.getHeaderGroups().map((headerGroup) => (
-    <tr key={headerGroup.id}>
+    <tr key={headerGroup.id}
+    className="bg-gray-100 dark:bg-[#09090B]/70">
       {headerGroup.headers.map((header) => (
         <th
           key={header.id}
-          className="text-left p-2 border-b border-r border-gray-200 relative" // Removed flex from here
-          style={{ width: columnWidths[header.id] || 200 }} // Dynamically set the width
+          className="text-left p-2 border-b border-r border-gray-200  dark:border-gray-700 dark:text-white relative" 
+          style={{ width: columnWidths[header.id] || 200 }} 
         >
           <div
             className="resizable-column-handle absolute right-0 top-0 h-full cursor-ew-resize"
             onMouseDown={(e) => handleColumnResize(header.id, e)}
-            style={{ width: '10px' }} // Handle width
+            style={{ width: '10px' }} 
           />
-          {/* Column Header with Arrow Icon */}
+      
           <div 
   className="inline-flex items-center cursor-pointer" 
-  onClick={header.column.getToggleSortingHandler()} // Attach sorting handler
+  onClick={header.column.getToggleSortingHandler()} 
 >
   {typeof header.column.columnDef.header === 'string'
     ? header.column.columnDef.header
     : flexRender(header.column.columnDef.header, header.getContext())}
   
   <ArrowUpDown 
-    className={`h-4 w-4 ml-1 transition-transform ${
+    className={`h-4 w-4 ml-1 text-gray-500 dark:text-gray-300 transition-transform ${
       header.column.getIsSorted() === 'asc' ? 'rotate-180 text-black' : 
       header.column.getIsSorted() === 'desc' ? 'text-black' : 'text-gray-500'
     }`} 
@@ -269,12 +295,12 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   {table.getRowModel().rows.map((row) => (
     <tr 
       key={row.id} 
-      className="transition duration-200 ease-in-out hover:bg-gray-100 hover:shadow-sm"
+      className="transition duration-200 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm"
     >
       {row.getVisibleCells().map((cell) => (
         <td
           key={cell.id}
-          className="p-2 border-b border-r border-gray-200"
+          className="p-2 border-b border-r border-gray-200 dark:border-gray-700 dark:text-white"
         >
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </td>
@@ -318,9 +344,9 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
     <label htmlFor="pageSize">Rows per page:</label>
     <select
       id="pageSize"
-      value={pagination.pageSize} // Fix: use pagination.pageSize
+      value={pagination.pageSize} 
       onChange={(e) => setPageSize(Number(e.target.value))}
-      className="border rounded p-1"
+      className="border rounded p-1 dark:bg-[#09090B]"
     >
       {[5, 10, 20, 50].map((size) => (
         <option key={size} value={size}>
