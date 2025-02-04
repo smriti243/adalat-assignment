@@ -265,20 +265,24 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
 </thead>
 
 
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="p-2 border-b border-r border-gray-200"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
+<tbody>
+  {table.getRowModel().rows.map((row) => (
+    <tr 
+      key={row.id} 
+      className="transition duration-200 ease-in-out hover:bg-gray-100 hover:shadow-sm"
+    >
+      {row.getVisibleCells().map((cell) => (
+        <td
+          key={cell.id}
+          className="p-2 border-b border-r border-gray-200"
+        >
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </td>
+      ))}
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
 
