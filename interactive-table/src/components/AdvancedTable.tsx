@@ -24,6 +24,11 @@ interface AdvancedTableProps {
   data: RowData[];
 }
 
+interface PaginationState {
+  pageIndex: number;
+  pageSize: number;
+}
+
 const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
@@ -31,20 +36,40 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   const [visibleColumns, setVisibleColumns] = useState(new Set(columns.map(col => col.header)));
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0, // default page index
+    pageSize: 10, // default page size
+  });
+  
+  
+  const setPageSize = (size: number) => {
+    setPagination(prev => ({ ...prev, pageSize: size }));
+  };
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const table = useReactTable<RowData>({
+    
     data,
     columns: columns.filter(col => visibleColumns.has(col.header)),
     state: {
       globalFilter,
+      pagination , // Add a default pageIndex
     },
+    
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: (updater) => {
+      if (typeof updater === 'function') {
+        setPagination((prev) => updater(prev)); // Pass the full previous pagination state
+      } else {
+        setPagination(updater); // Directly update with the new pagination state
+      }
+    },
+    
   });
 
   const exportToCsv = () => {
@@ -267,6 +292,21 @@ const AdvancedTable: React.FC<AdvancedTableProps> = ({ columns, data }) => {
   >
     Previous
   </button>
+  <div className="flex items-center gap-2">
+      <label htmlFor="pageSize">Rows per page:</label>
+      <select
+        id="pageSize"
+        value={pagination.pageSize} // Fix: use pagination.pageSize
+        onChange={(e) => setPageSize(Number(e.target.value))}
+        className="border rounded p-1"
+      >
+        {[5, 10, 20, 50].map((size) => (
+          <option key={size} value={size}>
+            {size} per page
+          </option>
+        ))}
+      </select>
+    </div>
 
   {/* Page Indicator in the Center */}
   <div className="flex-1 text-center">
