@@ -1,18 +1,14 @@
-<h1> Welcome to Adalat Asignment<h1>
+# Welcome to Adalat Assignment
 
-<h2>Overview</h2>
+## Overview
 This project contains an assignment focused on creating and managing a table component. The table is designed to efficiently display data, handle dynamic updates, and ensure responsiveness.
 
+## Setting up Locally
+1. Ensure you have Node.js installed.  
+2. Clone the repo.  
+3. Open the project folder and navigate to the `interactive_table` folder.  
+4. Run `npm i`.  
+5. After all packages are downloaded, run `npm start`.  
 
-<br>
-
-<h2> Setting up Locally</h2>
-1. Ensure you have node installed <br>
-2. Clone the repo <br>
-3. Open the project folder and navigate to interactive_table folder<br>
-4. Run npm i <br>
-5. After all packages are downloaded run npm start <br>
-
-
-<h2>Link to Website</h2>
-https://adalat-assignment.vercel.app/
+## Link to Website
+[https://adalat-assignment.vercel.app/](https://adalat-assignment.vercel.app/)
